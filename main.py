@@ -1,39 +1,36 @@
 from flask import Flask, request, jsonify
-import requests
+import openai
 import os
 
 app = Flask(__name__)
 
-API_KEY = "bc07e328-2243-4774-9b0c-431df865af7e"
-BOT_ID = "rSb7GdUSjw1kxi8igKkib"
+openai.api_key = "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"
 
-@app.route("/", methods=["GET"])
+@app.route('/')
 def index():
-    return "✅ Chatbase backend is running."
+    return "✅ OpenAI GPT PDF backend is running."
 
-@app.route("/send", methods=["POST"])
-def send_to_chatbase():
-    data = request.json
-    message = data.get("message", "")
+@app.route('/ask-gpt', methods=['POST'])
+def ask_gpt():
+    data = request.get_json()
+    user_text = data.get('text', '')
 
-    if not message:
-        return jsonify({"error": "No message provided"}), 400
+    if not user_text:
+        return jsonify({'error': 'No text provided'}), 400
 
-    payload = {
-        "chatbot_id": BOT_ID,
-        "messages": [
-            { "role": "user", "content": message }
-        ]
-    }
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant who catalogs and analyzes book metadata from extracted PDF text."},
+                {"role": "user", "content": user_text}
+            ]
+        )
+        answer = response.choices[0].message["content"]
+        return jsonify({'response': answer})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
-    }
-
-    response = requests.post("https://www.chatbase.co/api/v1/chat", headers=headers, json=payload)
-    return jsonify(response.json()), response.status_code
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
