@@ -7,7 +7,11 @@ app = Flask(__name__)
 API_KEY = "bc07e328-2243-4774-9b0c-431df865af7e"
 BOT_ID = "rSb7GdUSjw1kxi8igKkib"
 
-@app.route('/send', methods=['POST'])
+@app.route("/", methods=["GET"])
+def index():
+    return "✅ Chatbase backend is running."
+
+@app.route("/send", methods=["POST"])
 def send_to_chatbase():
     data = request.json
     message = data.get("message", "")
