@@ -1,9 +1,7 @@
 services:
   - type: web
-    name: gpt4o-api
-    runtime: python
+    name: chatbase-api
+    env: python
     buildCommand: pip install -r requirements.txt
     startCommand: python main.py
-    envVars:
-      - key: PORT
-        value: 5000
+    plan: free
